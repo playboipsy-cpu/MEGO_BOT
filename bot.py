@@ -16,13 +16,7 @@ allowed_users = [
     "elin__aax",
     "nvvvsr__",
     "iamforoe",
-    "marv_van_matk_2"  # admin جديد
-]
-
-# IDs ديال الجروبات اللي البوت يراقبهم فقط
-allowed_threads = [
-    1234567890,  # حط هنا ID ديال الجروب الأول
-    9876543210   # ID ديال الجروب الثاني إذا كاين
+    "marv_van_matk_2"
 ]
 
 # ربط الحساب بالبوت
@@ -46,16 +40,13 @@ banned_links = [
     "bit.ly"
 ]
 
-print("البوت شغال! مراقبة الجروبات المحددة 24/24 ...")
+print("البوت شغال! مراقبة أي جروب يدخل فيه 24/24 ...")
 
 while True:
-    threads = cl.direct_threads(amount=10)
+    # جلب آخر threads (جروبات و DMs)
+    threads = cl.direct_threads(amount=20)
+
     for thread in threads:
-
-        # فقط الجروبات اللي اخترنا
-        if thread.id not in allowed_threads:
-            continue
-
         for msg in thread.messages:
 
             if msg.id in checked:
