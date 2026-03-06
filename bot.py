@@ -9,11 +9,20 @@ load_dotenv()
 USERNAME = os.getenv("IG_USERNAME")
 PASSWORD = os.getenv("IG_PASSWORD")
 
-# حسابات admins أو المستخدمين المسموح لهم
+# الحسابات admins / المسموح لهم
 allowed_users = [
-    "admin1",
-    "admin2",
-    "friend1"
+    "_dq2n",
+    "5z_pbi",
+    "elin__aax",
+    "nvvvsr__",
+    "iamforoe",
+    "marv_van_matk_2"  # admin جديد
+]
+
+# IDs ديال الجروبات اللي البوت يراقبهم فقط
+allowed_threads = [
+    1234567890,  # حط هنا ID ديال الجروب الأول
+    9876543210   # ID ديال الجروب الثاني إذا كاين
 ]
 
 # ربط الحساب بالبوت
@@ -37,12 +46,16 @@ banned_links = [
     "bit.ly"
 ]
 
-print("البوت شغال! مراقبة الجروب 24/24 ...")
+print("البوت شغال! مراقبة الجروبات المحددة 24/24 ...")
 
 while True:
     threads = cl.direct_threads(amount=10)
-
     for thread in threads:
+
+        # فقط الجروبات اللي اخترنا
+        if thread.id not in allowed_threads:
+            continue
+
         for msg in thread.messages:
 
             if msg.id in checked:
@@ -63,7 +76,6 @@ while True:
 
             # إذا spam أو link وماشي allowed_users
             if (spam or link_detected) and user not in allowed_users:
-
                 cl.direct_send(
                     f"🚫 @{user} تم طردك بسبب السبام أو إرسال رابط ممنوع",
                     thread_ids=[thread.id]
