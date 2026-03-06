@@ -21,7 +21,7 @@ allowed_users = [
 
 # روابط ممنوعة
 banned_links = [
-    "http",
+    "https",
     "www",
     ".com",
     ".net",
@@ -29,7 +29,8 @@ banned_links = [
     "instagram.com",
     "t.me",
     "discord.gg",
-    "bit.ly"
+    "bit.ly",
+    "https"
 ]
 
 # ربط الحساب بالبوت
