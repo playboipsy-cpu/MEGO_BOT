@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 import time
 
-# تحميل المتغيرات من .env local أو Environment Variables في Railway
+# تحميل المتغيرات من .env أو Environment Variables على Railway
 load_dotenv()
 
 USERNAME = os.getenv("IG_USERNAME")
@@ -21,7 +21,8 @@ allowed_users = [
 
 # روابط ممنوعة
 banned_links = [
-    "https",
+    "http",
+    "https",        # تم الإضافة
     "www",
     ".com",
     ".net",
@@ -29,8 +30,7 @@ banned_links = [
     "instagram.com",
     "t.me",
     "discord.gg",
-    "bit.ly",
-    "http"
+    "bit.ly"
 ]
 
 # ربط الحساب بالبوت
@@ -45,8 +45,13 @@ print("البوت شغال! مراقبة أي جروب يدخل فيه 24/24 ...
 
 while True:
     try:
-        # جلب آخر threads (جروبات و DMs)
-        threads = cl.direct_threads(amount=20)
+        # جلب آخر threads
+        try:
+            threads = cl.direct_threads(amount=20)
+        except Exception as fetch_e:
+            # تجاهل أي media error فال fetch threads
+            print(f"تجاهل fetch threads بسبب media error: {fetch_e}")
+            threads = []
 
         for thread in threads:
             for msg in thread.messages:
@@ -82,7 +87,7 @@ while True:
                     continue
 
     except Exception as main_e:
-        # catch أي خطأ ف جلب threads
-        print(f"خطأ رئيسي ف fetch threads: {main_e}")
+        # catch أي خطأ غير متوقع
+        print(f"خطأ رئيسي آخر: {main_e}")
 
     time.sleep(8)
