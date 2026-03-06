@@ -1,109 +1,101 @@
-import os
-import time
 from instagrapi import Client
+import time
 
-# ----------------------------
-# Login credentials
-# ----------------------------
-USERNAME = os.getenv("IG_USERNAME")
-PASSWORD = os.getenv("IG_PASSWORD")
+# ⚠️ غيّر هادشي ب username/password ديالك
+IG_USERNAME = "YOUR_IG_USERNAME"
+IG_PASSWORD = "YOUR_IG_PASSWORD"
 
-cl = Client()
-cl.login(USERNAME, PASSWORD)
-print("البوت شغال! غادي يسيفط الرسائل فقط فالـ groups ...")
+# cooldown بالثواني
+COOLDOWN = 20
 
-# ----------------------------
-# الرسالة اللي بغيت يسيفط
-# ----------------------------
-MESSAGE = """╔═════════⚠️═════════╗
+# الرسالة اللي غادي يسيفط البوت
+MESSAGE = """
+╔═════════⚠️═════════╗
 ْ  𝐖𝐄𝐈𝐑𝐃 𝐖𝐎𝐑𝐋𝐃 𝐅𝐎𝐔𝐍𝐃𝐀𝐓𝐈𝐎𝐍 
 ╚═════════👁═════════╝
 
-𝑾𝑬𝑰𝐑𝐃_______________________𝑾𝑶𝐑𝐋𝐃
-📛_____________𝑻9𝑨𝑩𝐀_______________📛
+𝑾𝑬𝑰𝑹𝑫_______________________𝑾𝑶𝑹𝑳𝑫
+📛_____________𝑻9𝑨𝑩𝑨_______________📛
 
 ╔━━━━━━━━⊱⭐️⊰━━━━━━━━╗
 
-𝑾𝑬𝑰𝐑𝐃_______________________𝑾𝑶𝐑𝐋𝐃
-📛_____________𝑻9𝑨𝑩𝐀_______________📛
+𝑾𝑬𝑰𝑹𝑫_______________________𝑾𝑶𝑹𝑳𝑫
+📛_____________𝑻9𝑨𝑩𝑨_______________📛
 
 ━━━━━━━━━⊱⭐️⊰━━━━━━━━━
 
-𝑾𝑬𝑰𝐑𝐃_______________________𝑾𝑶𝐑𝐋𝐃
-📛_____________𝑻9𝑨𝑩𝐀_______________📛
+𝑾𝑬𝑰𝑹𝑫_______________________𝑾𝑶𝑹𝑳𝑫
+📛_____________𝑻9𝑨𝑩𝑨_______________📛
 
 ━━━━━━━━━⊱⭐️⊰━━━━━━━━━
 
-𝑾𝑬𝑰𝐑𝐃_______________________𝑾𝑶𝐑𝐋𝐃
-📛_____________𝑻9𝑨𝑩𝐀_______________📛
+𝑾𝑬𝑰𝑹𝑫_______________________𝑾𝑶𝑹𝑳𝑫
+📛_____________𝑻9𝑨𝑩𝑨_______________📛
 
 ━━━━━━━━━⊱⭐️⊰━━━━━━━━━
 
-𝑾𝑬𝑰𝐑𝐃_______________________𝑾𝑶𝐑𝐋𝐃
-📛_____________𝑻9𝑨𝑩𝐀_______________📛
+𝑾𝑬𝑰𝑹𝑫_______________________𝑾𝑶𝑹𝑳𝑫
+📛_____________𝑻9𝑨𝑩𝑨_______________📛
 
 ━━━━━━━━━⊱⭐️⊰━━━━━━━━━
 
-𝑾𝑬𝑰𝐑𝐃_______________________𝑾𝑶𝐑𝐋𝐃
-📛_____________𝑻9𝑨𝑩𝐀_______________📛
-
-━━━━━━━━━⊱⭐️⊰━━━━━━━━━
-
-𝑾𝑬𝑰𝐑𝐃_______________________𝑾𝑶𝐑𝐋𝐃
-📛_____________𝑻9𝑨𝑩𝐀_______________📛
-
-━━━━━━━━━⊱⭐️⊰━━━━━━━━━
-
-𝑾𝑬𝑰𝐑𝐃_______________________𝑾𝑶𝐑𝐋𝐃
-📛_____________𝑻9𝑨𝑩𝐀_______________📛
+𝑾𝑬𝑰𝑹𝑫_______________________𝑾𝑶𝑹𝑳𝑫
+📛_____________𝑻9𝑨𝑩𝑨_______________📛
 
 ━━━━━━━━━⊱⭐️⊰━━━━━━━━━
 
 https://ig.me/j/AbardcPA57d-g4Rb/
 """
 
-# ----------------------------
-# Cooldown بالثواني بين كل رسالة
-# ----------------------------
-COOLDOWN = 20
+# قائمة باش نخزنو state لكل group
+active_groups = {}
 
-# ----------------------------
-# Dictionary باش نخلي كل group يقدر يبدأ ويوقف رسائله
-# ----------------------------
-active_groups = {}  # key = thread.id, value = True/False
+# تسجيل الدخول
+cl = Client()
+cl.login(IG_USERNAME, IG_PASSWORD)
+print("✅ البوت شغال! مراقبة أي group 24/24 ...")
 
-# ----------------------------
-# Loop الأساسي
-# ----------------------------
+# loop باش يتشيك الرسائل
 while True:
     try:
-        threads = cl.direct_threads(amount=50)  # جلب آخر 50 thread
+        threads = cl.direct_threads(amount=50)
         for thread in threads:
-            # فقط groups
             if thread.type != "group":
-                continue
-            
-            last_message = thread.messages[0].text if thread.messages else ""
-            last_message_lower = last_message.lower() if last_message else ""
+                continue  # غي group فقط
 
-            # !start → يفعل الإرسال فهاد group
+            last_message = thread.messages[0].text if thread.messages else None
+            if not last_message:
+                continue  # نتجاهل أي media / reels / صوت
+
+            last_message_lower = last_message.lower()
+
+            # start command
             if "!start" in last_message_lower:
                 active_groups[thread.id] = True
-                cl.direct_send("✅ البوت بدا يسيفط فالـ group!", thread_ids=[thread.id])
+                try:
+                    cl.direct_send("✅ البوت بدا يسيفط فالـ group!", thread_ids=[thread.id])
+                except:
+                    pass
                 continue
 
-            # !stop → يوقف الإرسال فهاد group
+            # stop command
             if "!stop" in last_message_lower:
                 active_groups[thread.id] = False
-                cl.direct_send("⛔️ البوت وقف فالـ group!", thread_ids=[thread.id])
+                try:
+                    cl.direct_send("⛔️ البوت وقف فالـ group!", thread_ids=[thread.id])
+                except:
+                    pass
                 continue
 
-            # إذا group مفعل
+            # إرسال الرسائل تلقائيًا
             if active_groups.get(thread.id):
-                cl.direct_send(MESSAGE, thread_ids=[thread.id])
-                print(f"تم إرسال الرسالة ل group {thread.id}")
-                time.sleep(COOLDOWN)
-
+                try:
+                    cl.direct_send(MESSAGE, thread_ids=[thread.id])
+                    print(f"تم إرسال الرسالة ل group {thread.id}")
+                    time.sleep(COOLDOWN)
+                except Exception as e:
+                    print(f"خطأ فـ إرسال الرسالة: {e}")
+                    continue  # أي media error → نتجاهلو
     except Exception as e:
-        print(f"خطأ: {e}")
+        print(f"خطأ فالـ loop: {e}")
         time.sleep(5)
