@@ -10,7 +10,7 @@ cl.login(USERNAME, PASSWORD)
 
 print("Bot started...")
 
-cooldown = 20
+cooldown = 5
 spamming = {}
 
 MESSAGE = """
