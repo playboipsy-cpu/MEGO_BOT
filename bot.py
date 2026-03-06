@@ -30,7 +30,7 @@ banned_links = [
     "t.me",
     "discord.gg",
     "bit.ly",
-    "https"
+    "http"
 ]
 
 # ربط الحساب بالبوت
