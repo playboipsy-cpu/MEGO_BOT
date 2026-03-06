@@ -10,100 +10,100 @@ PASSWORD = os.getenv("IG_PASSWORD")
 
 cl = Client()
 cl.login(USERNAME, PASSWORD)
-print("البوت شغال! مراقبة أي جروب يدخل فيه 24/24 ...")
+print("البوت شغال! غادي يسيفط الرسائل فقط فالـ groups ...")
 
 # ----------------------------
-# Message & cooldown
+# الرسالة اللي بغيت يسيفط
 # ----------------------------
 MESSAGE = """╔═════════⚠️═════════╗
 ْ  𝐖𝐄𝐈𝐑𝐃 𝐖𝐎𝐑𝐋𝐃 𝐅𝐎𝐔𝐍𝐃𝐀𝐓𝐈𝐎𝐍 
 ╚═════════👁═════════╝
 
-𝑾𝑬𝑰𝑹𝑫_______________________𝑾𝑶𝑹𝑳𝐃
-📛_____________𝑻9𝑨𝑩𝑨_______________📛
+𝑾𝑬𝑰𝐑𝐃_______________________𝑾𝑶𝐑𝐋𝐃
+📛_____________𝑻9𝑨𝑩𝐀_______________📛
 
 ╔━━━━━━━━⊱⭐️⊰━━━━━━━━╗
 
-𝑾𝑬𝑰𝑹𝑫_______________________𝑾𝑶𝑹𝑳𝐃
-📛_____________𝑻9𝑨𝑩𝑨_______________📛
+𝑾𝑬𝑰𝐑𝐃_______________________𝑾𝑶𝐑𝐋𝐃
+📛_____________𝑻9𝑨𝑩𝐀_______________📛
 
 ━━━━━━━━━⊱⭐️⊰━━━━━━━━━
 
-𝑾𝑬𝑰𝑹𝑫_______________________𝑾𝑶𝑹𝑳𝐃
-📛_____________𝑻9𝑨𝑩𝑨_______________📛
+𝑾𝑬𝑰𝐑𝐃_______________________𝑾𝑶𝐑𝐋𝐃
+📛_____________𝑻9𝑨𝑩𝐀_______________📛
 
 ━━━━━━━━━⊱⭐️⊰━━━━━━━━━
 
-𝑾𝑬𝑰𝑹𝑫_______________________𝑾𝑶𝑹𝑳𝐃
-📛_____________𝑻9𝑨𝑩𝑨_______________📛
+𝑾𝑬𝑰𝐑𝐃_______________________𝑾𝑶𝐑𝐋𝐃
+📛_____________𝑻9𝑨𝑩𝐀_______________📛
 
 ━━━━━━━━━⊱⭐️⊰━━━━━━━━━
 
-𝑾𝑬𝑰𝑹𝑫_______________________𝑾𝑶𝑹𝑳𝐃
-📛_____________𝑻9𝑨𝑩𝑨_______________📛
+𝑾𝑬𝑰𝐑𝐃_______________________𝑾𝑶𝐑𝐋𝐃
+📛_____________𝑻9𝑨𝑩𝐀_______________📛
 
 ━━━━━━━━━⊱⭐️⊰━━━━━━━━━
 
-𝑾𝑬𝑰𝑹𝑫_______________________𝑾𝑶𝑹𝑳𝐃
-📛_____________𝑻9𝑨𝑩𝑨_______________📛
+𝑾𝑬𝑰𝐑𝐃_______________________𝑾𝑶𝐑𝐋𝐃
+📛_____________𝑻9𝑨𝑩𝐀_______________📛
 
 ━━━━━━━━━⊱⭐️⊰━━━━━━━━━
 
-𝑾𝑬𝑰𝑹𝑫_______________________𝑾𝑶𝑹𝑳𝐃
-📛_____________𝑻9𝑨𝑩𝑨_______________📛
+𝑾𝑬𝑰𝐑𝐃_______________________𝑾𝑶𝐑𝐋𝐃
+📛_____________𝑻9𝑨𝑩𝐀_______________📛
 
 ━━━━━━━━━⊱⭐️⊰━━━━━━━━━
 
-𝑾𝑬𝑰𝑹𝑫_______________________𝑾𝑶𝑹𝑳𝐃
-📛_____________𝑻9𝑨𝑩𝑨_______________📛
+𝑾𝑬𝑰𝐑𝐃_______________________𝑾𝑶𝐑𝐋𝐃
+📛_____________𝑻9𝑨𝑩𝐀_______________📛
 
 ━━━━━━━━━⊱⭐️⊰━━━━━━━━━
-
-𝑾𝑬𝑰𝑹𝑫_______________________𝑾𝑶𝑹𝑳𝐃
-📛_____________𝑻9𝑨𝑩𝑨_______________📛
 
 https://ig.me/j/AbardcPA57d-g4Rb/
 """
 
-cooldown = 20  # ← هاد الرقم هو اللي كتحكم فيه فالوقت بين كل رسالة
-
-spamming = {}  # لكل thread الحالة ديالو (True/False)
+# ----------------------------
+# Cooldown بالثواني بين كل رسالة
+# ----------------------------
+COOLDOWN = 20
 
 # ----------------------------
-# Main loop
+# Dictionary باش نخلي كل group يقدر يبدأ ويوقف رسائله
+# ----------------------------
+active_groups = {}  # key = thread.id, value = True/False
+
+# ----------------------------
+# Loop الأساسي
 # ----------------------------
 while True:
     try:
-        threads = cl.direct_threads(amount=20)  # آخر 20 thread
+        threads = cl.direct_threads(amount=50)  # جلب آخر 50 thread
         for thread in threads:
-            thread_id = thread.id
+            # فقط groups
+            if thread.type != "group":
+                continue
+            
+            last_message = thread.messages[0].text if thread.messages else ""
+            last_message_lower = last_message.lower() if last_message else ""
 
-            # إنشاء الحالة لكل thread إلا ماكانش
-            if thread_id not in spamming:
-                spamming[thread_id] = False
+            # !start → يفعل الإرسال فهاد group
+            if "!start" in last_message_lower:
+                active_groups[thread.id] = True
+                cl.direct_send("✅ البوت بدا يسيفط فالـ group!", thread_ids=[thread.id])
+                continue
 
-            # جلب آخر 5 ميساجات
-            messages = cl.direct_messages(thread_id, amount=5)
-            for msg in messages:
-                if msg.text is None:
-                    continue
+            # !stop → يوقف الإرسال فهاد group
+            if "!stop" in last_message_lower:
+                active_groups[thread.id] = False
+                cl.direct_send("⛔️ البوت وقف فالـ group!", thread_ids=[thread.id])
+                continue
 
-                text = msg.text.lower()
-
-                # أوامر start / stop
-                if text == "start":
-                    spamming[thread_id] = True
-                    cl.direct_send("Spam started.", thread_ids=[thread_id])
-
-                if text == "stop":
-                    spamming[thread_id] = False
-                    cl.direct_send("Spam stopped.", thread_ids=[thread_id])
-
-            # إرسال الرسالة إذا thread مفعل
-            if spamming[thread_id]:
-                cl.direct_send(MESSAGE, thread_ids=[thread_id])
-                time.sleep(cooldown)
+            # إذا group مفعل
+            if active_groups.get(thread.id):
+                cl.direct_send(MESSAGE, thread_ids=[thread.id])
+                print(f"تم إرسال الرسالة ل group {thread.id}")
+                time.sleep(COOLDOWN)
 
     except Exception as e:
-        print("خطأ رئيسي ف fetch threads:", e)
-        time.sleep(10)
+        print(f"خطأ: {e}")
+        time.sleep(5)
